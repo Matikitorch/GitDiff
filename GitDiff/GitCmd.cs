@@ -1,17 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Management.Automation;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace GitDiff
 {
-    public class Program
+    public class GitCmd
     {
-        static void Main(string[] args)
+        public GitCmd(string url)
+        {
+
+        }
+
+        public void Foo()
         {
             string dir = @"C:\Projects\Visual Studio\GitDiffTestSolution";
-            List<string> myList = new List<string>();
 
             Collection<PSObject> results;
 
@@ -28,12 +34,6 @@ namespace GitDiff
                 }
             }
 
-            foreach (PSObject psObject in results)
-            {
-                myList.Add(psObject.ToString());
-            }
-
-            GitParser.Parse(myList);
 
             Console.WriteLine();
             Console.WriteLine("Press any key to continue...");
