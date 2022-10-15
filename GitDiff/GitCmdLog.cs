@@ -10,18 +10,18 @@ namespace GitDiff
 {
     public static class GitCmdLog
     {
-        public static List<GitLogResult> Parse(string dir)
+        public static List<GitLogResult> Invoke(string dir)
         {
             using (PowerShell ps = PowerShell.Create())
             {
                 ps.AddScript("cd " + "\"" + dir + "\"");
                 ps.AddScript("git log --pretty=oneline");
 
-                return ParseCommit(ps.Invoke<string>());
+                return ParseGitLog(ps.Invoke<string>());
             }
         }
 
-        private static List<GitLogResult> ParseCommit(Collection<string> results)
+        private static List<GitLogResult> ParseGitLog(Collection<string> results)
         {
             string commitName, commitID;
             int idx;

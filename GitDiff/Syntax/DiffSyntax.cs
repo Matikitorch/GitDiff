@@ -27,7 +27,7 @@ namespace GitDiff.Syntax
         public bool MatchesSyntax(ref bool isHeader, string commitLine)
         {
             bool tempHeader = isHeader;
-                
+
             if (IsHeader != isHeader)
             {
                 if (!AllowHeaderChange) return false;

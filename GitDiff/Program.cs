@@ -14,13 +14,13 @@ namespace GitDiff
             string dir = @"C:\Projects\Visual Studio\GitDiffTestSolution";
 
             // Get the results from a "git diff" command
-            List<GitDiffResult> diffResults = GitCmdDiff.Diff(dir);
+            List<GitDiffResult> diffResults = GitCmdDiff.Invoke(dir);
 
             // Parse the results
             List<DiffInfo> diffInfos = GitDiffParser.Parse(diffResults, GetSyntaxFactory());
 
             // Contains a list of all of the commit line that are not currently supported by any syntax format in the syntax factory
-            List<UnsupportedCommit> unsupportedCommits = UnsupportedCommits.CommitsNotSupported;
+            List<UnsupportedCommit> unsupportedCommits = UnsupportedDiff.CommitsNotSupported;
 
             Console.WriteLine();
             Console.WriteLine("Press any key to continue...");

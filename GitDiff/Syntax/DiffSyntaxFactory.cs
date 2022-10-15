@@ -13,7 +13,7 @@ namespace GitDiff.Syntax
         {
             DiffSyntaxList = new List<DiffSyntax>(diffSyntaxList);
         }
-        
+
         private List<DiffSyntax> DiffSyntaxList
         { get; }
 
@@ -26,7 +26,7 @@ namespace GitDiff.Syntax
             DiffSyntaxList.Add(diffSyntax);
         }
 
-        public bool MatchSyntax(ref bool isHeader, string commitLine, out DiffSyntax? diffSyntax)
+        public bool MatchSyntax(ref bool isHeader, string commitLine, out DiffSyntax diffSyntax)
         {
             foreach (DiffSyntax syntax in DiffSyntaxList)
             {

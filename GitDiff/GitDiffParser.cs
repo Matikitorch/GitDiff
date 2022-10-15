@@ -20,28 +20,29 @@ namespace GitDiff
             List<DiffInfo> gitInfos = new();
             foreach (GitDiffResult diffResult in results)
             {
-                DiffInfo diffInfo = new(diffResult.Name, diffResult.ID);
-                ParseCommits(diffSyntaxFactory, diffInfo, diffResult);
+                ParseDiffResult(diffSyntaxFactory, diffResult, out DiffInfo diffInfo);
+
                 gitInfos.Add(diffInfo);
             }
 
             return gitInfos;
         }
 
-        private static void ParseCommits(DiffSyntaxFactory diffSyntaxFactory, DiffInfo diffInfo, GitDiffResult diffResult)
+        private static void ParseDiffResult(DiffSyntaxFactory diffSyntaxFactory, GitDiffResult diffResult, out DiffInfo diffInfo)
         {
             bool isHeader = true;
 
+            diffInfo = new(diffResult.Name, diffResult.ID);
+
             foreach (string commitLine in diffResult.Commits)
             {
-                if (!diffSyntaxFactory.MatchSyntax(ref isHeader, commitLine, out DiffSyntax? diffSyntax))
+                if (!diffSyntaxFactory.MatchSyntax(ref isHeader, commitLine, out DiffSyntax diffSyntax))
                 {
-                    UnsupportedCommits.Add(diffResult, commitLine, isHeader);
-                    diffSyntaxFactory.MatchSyntax(ref isHeader, commitLine, out _);
+                    UnsupportedDiff.Add(diffResult, isHeader, commitLine);
                 }
                 else
                 {
-                    diffSyntax?.ParseCommit(diffInfo, commitLine);
+                    diffSyntax.ParseCommit(diffInfo, commitLine);
                 }
             }
         }

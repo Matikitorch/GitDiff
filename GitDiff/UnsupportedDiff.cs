@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 
 namespace GitDiff
 {
-    public static class UnsupportedCommits
+    public static class UnsupportedDiff
     {
         public static List<UnsupportedCommit> CommitsNotSupported
         { get; } = new();
 
-        public static void Add(GitDiffResult diffResult, string commit, bool isHeader)
+        public static void Add(GitDiffResult diffResult, bool isHeader, string commit)
         {
-            CommitsNotSupported.Add(new UnsupportedCommit(diffResult.Name, diffResult.ID, commit, isHeader));
+            CommitsNotSupported.Add(new UnsupportedCommit(diffResult.Name, diffResult.ID, isHeader, commit));
         }
     }
 
     public class UnsupportedCommit
     {
-        public UnsupportedCommit(string name, string iD, string line, bool isHeader)
+        public UnsupportedCommit(string name, string iD, bool isHeader, string line)
         {
             Name = name;
             ID = iD;

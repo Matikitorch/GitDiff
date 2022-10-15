@@ -11,7 +11,7 @@ namespace GitDiff
 {
     public class GitCmdDiff
     {
-        public static List<GitDiffResult> Diff(string dir, uint depth = uint.MaxValue)
+        public static List<GitDiffResult> Invoke(string dir, uint depth = uint.MaxValue)
         {
             List<GitDiffResult> diffResults = new();
             List<GitLogResult> logResults;
@@ -19,7 +19,7 @@ namespace GitDiff
             Collection<string> commits;
 
             // Get a list of all the commits
-            logResults = GitCmdLog.Parse(dir);
+            logResults = GitCmdLog.Invoke(dir);
 
             for (int i = 0; (i < logResults.Count - 1) && (i < depth); i++)
             {
