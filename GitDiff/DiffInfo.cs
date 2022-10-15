@@ -7,15 +7,19 @@ using System.Threading.Tasks;
 
 namespace GitDiff
 {
-    public class GitInfo
+    public class DiffInfo
     {
-        //public GitInfo(int oldIndex, string oldFile, int newIndex, string newFile)
-        //{
-        //    OldIndex = oldIndex;
-        //    OldFile = oldFile;
-        //    NewIndex = newIndex;
-        //    NewFile = newFile;
-        //}
+        public DiffInfo(string name, string id)
+        {
+            Name = name;
+            ID = id;
+        }
+
+        public string Name
+        { get; }
+
+        public string ID
+        { get; }
 
         public string OldIndex
         { get; internal set; }

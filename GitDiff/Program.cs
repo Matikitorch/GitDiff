@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
+using GitDiff.Syntax;
 
 namespace GitDiff
 {
@@ -11,33 +12,37 @@ namespace GitDiff
         static void Main(string[] args)
         {
             string dir = @"C:\Projects\Visual Studio\GitDiffTestSolution";
-            List<string> myList = new List<string>();
 
-            Collection<PSObject> results;
+            // Get the results from a "git diff" command
+            List<GitDiffResult> diffResults = GitCmdDiff.Diff(dir);
 
-            using (PowerShell ps = PowerShell.Create())
-            {
-                ps.AddScript("cd " + "\"" + dir + "\"");
-                ps.AddScript("git diff HEAD^ HEAD");
+            // Parse the results
+            List<DiffInfo> diffInfos = GitDiffParser.Parse(diffResults, GetSyntaxFactory());
 
-                results = ps.Invoke();
-
-                if ((results is not null) && (results.Count > 0))
-                {
-                    Console.WriteLine(String.Join(Environment.NewLine, results));
-                }
-            }
-
-            foreach (PSObject psObject in results)
-            {
-                myList.Add(psObject.ToString());
-            }
-
-            GitParser.Parse(myList);
+            // Contains a list of all of the commit line that are not currently supported by any syntax format in the syntax factory
+            List<UnsupportedCommit> unsupportedCommits = UnsupportedCommits.CommitsNotSupported;
 
             Console.WriteLine();
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
+        }
+
+        private static DiffSyntaxFactory GetSyntaxFactory()
+        {
+            return new DiffSyntaxFactory(new List<DiffSyntax>()
+            {
+                new DiffSyntaxDiff(),
+                new DiffSyntaxIndex(),
+                new DiffSyntaxOldFile(),
+                new DiffSyntaxNewFile(),
+                new DiffSyntaxChunk(),
+                new DiffSyntaxOldLine(),
+                new DiffSyntaxNewLine(),
+                new DiffSyntaxNewFileMode(),
+                new DiffSyntaxDeletedFileMode(),
+                new DiffSyntaxEnd(),
+                new DiffSyntaxEmpty(),
+            });
         }
     }
 }
