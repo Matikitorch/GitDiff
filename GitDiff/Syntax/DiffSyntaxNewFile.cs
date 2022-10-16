@@ -6,25 +6,18 @@ using System.Threading.Tasks;
 
 namespace GitDiff.Syntax
 {
-    public class DiffSyntaxNewFile : DiffSyntax
+    public static class DiffSyntaxNewFile 
     {
-        public DiffSyntaxNewFile()
-            : base("+++", true)
-        { }
+        public static string Prefix => "+++";
 
-        public override void ParseSyntax(DiffInfo diffInfo, string commitLine)
+        public static string Parse(string commitLine)
         {
-            int index;
+            int idx;
 
-            index = commitLine.IndexOf("b/");
-            if (index < 0)
-            {
-                diffInfo.NewFile = "NULL";
-            }
-            else
-            {
-                diffInfo.NewFile = commitLine.Substring(index + 2);
-            }
+            idx = commitLine.IndexOf("b/");
+            if (idx < 0) return "NULL";
+            
+            return commitLine.Substring(idx + 2).Trim();
         }
     }
 }

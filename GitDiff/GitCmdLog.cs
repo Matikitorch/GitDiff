@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using System.Text;
@@ -10,11 +11,11 @@ namespace GitDiff
 {
     public static class GitCmdLog
     {
-        public static List<GitLogResult> Invoke(string dir)
+        public static List<GitLogResult> Invoke(string path)
         {
             using (PowerShell ps = PowerShell.Create())
             {
-                ps.AddScript("cd " + "\"" + dir + "\"");
+                ps.AddScript("cd " + "\"" + path + "\"");
                 ps.AddScript("git log --pretty=oneline");
 
                 return ParseGitLog(ps.Invoke<string>());

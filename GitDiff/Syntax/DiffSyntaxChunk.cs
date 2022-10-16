@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,34 +7,61 @@ using System.Threading.Tasks;
 
 namespace GitDiff.Syntax
 {
-    public class DiffSyntaxChunk : DiffSyntax
+    public static class DiffSyntaxChunk
     {
-        public DiffSyntaxChunk()
-            : base("@@", false, true)
-        { }
+        public static string Prefix => "@@";
 
-        public override void ParseSyntax(DiffInfo diffInfo, string commitLine)
+        public static DiffInfoFile Parse(string? fileName, GitDiffResult diffResult, ref int commitIdx)
         {
-            string startLine, numOfLines;
+            string commitLine;
+            int lineNumber;
             int index;
 
-            while (commitLine.Length > 0)
+            if (string.IsNullOrEmpty(fileName)) throw new InvalidOperationException();
+
+            DiffInfoFile diffInfoFile = new DiffInfoFile(fileName);
+
+            // Remove the prefix
+            commitLine = diffResult.Commits[commitIdx].Substring(Prefix.Length).Trim();
+
+            // Find the '+', we don't care about '-'
+            index = commitLine.IndexOf('+');
+            if (index < 0) throw new InvalidOperationException();
+            commitLine = commitLine.Substring(index + 1);
+
+            // Get the start line
+            index = commitLine.IndexOf(',');
+            if (index < 0) throw new InvalidOperationException();
+            lineNumber = int.Parse(commitLine.Substring(0, index));
+
+            // Move the index to the first line
+            commitIdx += 1;
+
+            // Start parsing
+            do
             {
-                if (commitLine.StartsWith(Prefix)) break;
-                if (!commitLine.StartsWith("-") && !commitLine.StartsWith("+")) throw new ArgumentException("Failed to find \"-\" or \"+\" in \"" + commitLine + "\"");
+                commitLine = diffResult.Commits[commitIdx];
 
-                index = commitLine.IndexOf(",");
-                startLine = commitLine.Substring(1, index - 1);
+                if (!commitLine.StartsWith(DiffSyntaxOldLine.Prefix))
+                {
+                    if (commitLine.StartsWith(DiffSyntaxNewLine.Prefix))
+                    {
+                        diffInfoFile.AddLine(new DiffInfoLine(lineNumber, DiffSyntaxNewLine.Parse(commitLine)));
+                    }
+                    else if (!commitLine.StartsWith(' '))
+                    {
+                        break;
+                    }
 
-                commitLine = commitLine.Substring(index + 1);
+                    lineNumber += 1;
+                }
 
-                index = commitLine.IndexOf(" ");
-                numOfLines = commitLine.Substring(0, index);
+                commitIdx += 1;
+                if (commitIdx >= diffResult.CommitsCount) break;
 
-                diffInfo.Chunks.Add(new DiffInfo.Chunk(int.Parse(startLine), int.Parse(numOfLines)));
+            } while (true);
 
-                commitLine = commitLine.Substring(index + 1);
-            }
+            return diffInfoFile;
         }
     }
 }

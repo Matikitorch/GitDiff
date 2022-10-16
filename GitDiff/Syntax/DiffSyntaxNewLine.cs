@@ -6,16 +6,13 @@ using System.Threading.Tasks;
 
 namespace GitDiff.Syntax
 {
-    public class DiffSyntaxNewLine : DiffSyntax
+    public static class DiffSyntaxNewLine
     {
-        public DiffSyntaxNewLine()
-            : base("+", false)
-        { }
+        public static string Prefix => "+";
 
-        public override void ParseSyntax(DiffInfo diffInfo, string commitLine)
+        public static string Parse(string commitLine)
         {
-            if (string.IsNullOrEmpty(commitLine)) return;
-            diffInfo.NewLines.Add(commitLine);
+            return commitLine.Substring(Prefix.Length).Trim();
         }
     }
 }

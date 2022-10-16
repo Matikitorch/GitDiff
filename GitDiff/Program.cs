@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
 using GitDiff.Syntax;
+using GitDiff.Smells;
 
 namespace GitDiff
 {
@@ -11,38 +12,36 @@ namespace GitDiff
     {
         static void Main(string[] args)
         {
+            List<CodeSmellResult> codeSmellResults;
+
             string dir = @"C:\Projects\Visual Studio\GitDiffTestSolution";
 
             // Get the results from a "git diff" command
             List<GitDiffResult> diffResults = GitCmdDiff.Invoke(dir);
 
             // Parse the results
-            List<DiffInfo> diffInfos = GitDiffParser.Parse(diffResults, GetSyntaxFactory());
+            List<DiffInfoCommit> diffInfos = GitDiffParser.Parse(diffResults);
 
-            // Contains a list of all of the commit line that are not currently supported by any syntax format in the syntax factory
-            List<UnsupportedCommit> unsupportedCommits = UnsupportedDiff.CommitsNotSupported;
+            // Create a new code smell factory
+            CodeSmellFactory codeSmellFactory = new CodeSmellFactory(new List<CodeSmell>()
+            {
+                new CodeSmellSwitchCase()
+            });
+
+            // Analyze the results
+            foreach (DiffInfoCommit diffInfo in diffInfos)
+            {
+                codeSmellResults = codeSmellFactory.Analyze(diffInfo);
+
+                foreach (CodeSmellResult codeSmellResult in codeSmellResults)
+                {
+                    Console.WriteLine(codeSmellResult.PrintResult());
+                }
+            }
 
             Console.WriteLine();
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
-        }
-
-        private static DiffSyntaxFactory GetSyntaxFactory()
-        {
-            return new DiffSyntaxFactory(new List<DiffSyntax>()
-            {
-                new DiffSyntaxDiff(),
-                new DiffSyntaxIndex(),
-                new DiffSyntaxOldFile(),
-                new DiffSyntaxNewFile(),
-                new DiffSyntaxChunk(),
-                new DiffSyntaxOldLine(),
-                new DiffSyntaxNewLine(),
-                new DiffSyntaxNewFileMode(),
-                new DiffSyntaxDeletedFileMode(),
-                new DiffSyntaxEnd(),
-                new DiffSyntaxEmpty(),
-            });
         }
     }
 }

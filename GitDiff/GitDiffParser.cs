@@ -11,40 +11,16 @@ namespace GitDiff
 {
     public static class GitDiffParser
     {
-        public static List<DiffInfo> Parse(List<GitDiffResult> results, DiffSyntaxFactory diffSyntaxFactory)
+        public static List<DiffInfoCommit> Parse(List<GitDiffResult> results)
         {
-            if ((diffSyntaxFactory == null) || (diffSyntaxFactory.Count == 0)) throw new ArgumentNullException(nameof(diffSyntaxFactory));
-            if (results == null) throw new ArgumentNullException(nameof(results));
-            if (results.Count == 0) throw new ArgumentException("Nothing to parse.");
+            List<DiffInfoCommit> diffInfoCommits = new();
 
-            List<DiffInfo> gitInfos = new();
             foreach (GitDiffResult diffResult in results)
             {
-                ParseDiffResult(diffSyntaxFactory, diffResult, out DiffInfo diffInfo);
-
-                gitInfos.Add(diffInfo);
+                diffInfoCommits.Add(DiffSyntaxDiff.Parse(diffResult));
             }
 
-            return gitInfos;
-        }
-
-        private static void ParseDiffResult(DiffSyntaxFactory diffSyntaxFactory, GitDiffResult diffResult, out DiffInfo diffInfo)
-        {
-            bool isHeader = true;
-
-            diffInfo = new(diffResult.Name, diffResult.ID);
-
-            foreach (string commitLine in diffResult.Commits)
-            {
-                if (!diffSyntaxFactory.MatchSyntax(ref isHeader, commitLine, out DiffSyntax diffSyntax))
-                {
-                    UnsupportedDiff.Add(diffResult, isHeader, commitLine);
-                }
-                else
-                {
-                    diffSyntax.ParseCommit(diffInfo, commitLine);
-                }
-            }
+            return diffInfoCommits;
         }
     }
 }

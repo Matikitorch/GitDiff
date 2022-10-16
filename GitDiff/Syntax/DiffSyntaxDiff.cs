@@ -6,28 +6,59 @@ using System.Threading.Tasks;
 
 namespace GitDiff.Syntax
 {
-    public class DiffSyntaxDiff : DiffSyntax
+    public static class DiffSyntaxDiff
     {
-        public DiffSyntaxDiff()
-            : base("diff", true, true)
-        { }
+        public static string Prefix => "diff";
 
-        public override void ParseSyntax(DiffInfo diffInfo, string commitLine)
+        public static DiffInfoCommit Parse(GitDiffResult diffResult)
         {
-            string oldFile, newFile;
-            int oldFileIndex, newFileIndex;
+            string commitLine;
+            string fileName;
+            int commitIdx;
 
-            oldFileIndex = commitLine.IndexOf("a/");
-            if (oldFileIndex < 0) throw new ArgumentException("Failed to find \"a/\" in \"" + commitLine + "\"");
+            DiffInfoCommit diffInfoCommit = new(diffResult.Name, diffResult.ID);
 
-            newFileIndex = commitLine.IndexOf("b/");
-            if (newFileIndex < 0) throw new ArgumentException("Failed to find \"b/\" in \"" + commitLine + "\"");
+            commitIdx = 0;
+            while (commitIdx < diffResult.CommitsCount)
+            {
+                commitLine = diffResult.Commits[commitIdx];
 
-            oldFile = commitLine.Substring(oldFileIndex + 2, newFileIndex - oldFileIndex - 2);
-            newFile = commitLine.Substring(newFileIndex + 2);
+                if (commitLine.StartsWith(DiffSyntaxDiff.Prefix))
+                {
+                    fileName = null;
 
-            diffInfo.OldFile = oldFile;
-            diffInfo.NewFile = newFile;
+                    // Find the 'fileName' and spin until 'chunk'
+                    do
+                    {
+                        if (commitLine.StartsWith(DiffSyntaxNewFile.Prefix))
+                        {
+                            fileName = DiffSyntaxNewFile.Parse(commitLine);
+                        }
+
+                        if (++commitIdx >= diffResult.CommitsCount) throw new InvalidOperationException();
+                        commitLine = diffResult.Commits[commitIdx];
+
+                    } while (!commitLine.StartsWith(DiffSyntaxChunk.Prefix));
+
+                    // We should've gotten a file name
+                    if (string.IsNullOrEmpty(fileName)) throw new InvalidOperationException();
+
+                    // Parse one or more 'chunk's
+                    while (commitLine.StartsWith(DiffSyntaxChunk.Prefix))
+                    {
+                        diffInfoCommit.AddFile(DiffSyntaxChunk.Parse(fileName, diffResult, ref commitIdx));
+
+                        if (commitIdx >= diffResult.CommitsCount) break;
+                        commitLine = diffResult.Commits[commitIdx];
+                    }
+                }
+                else
+                {
+                    commitIdx += 1;
+                }
+            }
+
+            return diffInfoCommit;
         }
     }
 }

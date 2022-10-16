@@ -11,7 +11,7 @@ namespace GitDiff
 {
     public class GitCmdDiff
     {
-        public static List<GitDiffResult> Invoke(string dir, uint depth = uint.MaxValue)
+        public static List<GitDiffResult> Invoke(string path, uint depth = uint.MaxValue)
         {
             List<GitDiffResult> diffResults = new();
             List<GitLogResult> logResults;
@@ -19,7 +19,7 @@ namespace GitDiff
             Collection<string> commits;
 
             // Get a list of all the commits
-            logResults = GitCmdLog.Invoke(dir);
+            logResults = GitCmdLog.Invoke(path);
 
             for (int i = 0; (i < logResults.Count - 1) && (i < depth); i++)
             {
@@ -28,8 +28,8 @@ namespace GitDiff
 
                 using (PowerShell ps = PowerShell.Create())
                 {
-                    ps.AddScript("cd " + "\"" + dir + "\"");
-                    ps.AddScript("git diff " + oldCommit.CommitID + " " + newCommit.CommitID);
+                    ps.AddScript("cd " + "\"" + path + "\"");
+                    ps.AddScript("git diff " + oldCommit.CommitID + "..." + newCommit.CommitID);
 
                     commits = ps.Invoke<string>();
                     if ((commits != null) && (commits.Count > 0))
@@ -60,5 +60,8 @@ namespace GitDiff
 
         public List<string> Commits
         { get; }
+
+        public int CommitsCount
+        { get { return Commits.Count; } }
     }
 }
