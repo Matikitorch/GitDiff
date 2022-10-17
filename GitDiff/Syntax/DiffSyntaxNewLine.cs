@@ -12,7 +12,7 @@ namespace GitDiff.Syntax
 
         public static string Parse(string commitLine)
         {
-            return commitLine.Substring(Prefix.Length).Trim();
+            return commitLine.Substring(Prefix.Length);
         }
     }
 }

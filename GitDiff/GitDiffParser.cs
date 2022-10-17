@@ -11,13 +11,19 @@ namespace GitDiff
 {
     public static class GitDiffParser
     {
-        public static List<DiffInfoCommit> Parse(List<GitDiffResult> results)
+        public static List<DiffInfoCommit> Parse(List<GitDiffResult> results, params string[] supportedExtensions)
         {
+            DiffInfoCommit diffInfoCommit;
             List<DiffInfoCommit> diffInfoCommits = new();
 
             foreach (GitDiffResult diffResult in results)
             {
-                diffInfoCommits.Add(DiffSyntaxDiff.Parse(diffResult));
+                diffInfoCommit = DiffSyntaxDiff.Parse(diffResult, supportedExtensions);
+
+                if (diffInfoCommit.FileCount > 0)
+                {
+                    diffInfoCommits.Add(diffInfoCommit);
+                }
             }
 
             return diffInfoCommits;

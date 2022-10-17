@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Management.Automation;
 using GitDiff.Syntax;
 using GitDiff.Smells;
+using System.Text;
 
 namespace GitDiff
 {
@@ -14,13 +15,14 @@ namespace GitDiff
         {
             List<CodeSmellResult> codeSmellResults;
 
-            string dir = @"C:\Projects\Visual Studio\GitDiffTestSolution";
+            //string dir = @"C:\Projects\Visual Studio\GitDiffTestSolution";
+            string dir = @"C:\Projects\Visual Studio\Powershell";
 
             // Get the results from a "git diff" command
-            List<GitDiffResult> diffResults = GitCmdDiff.Invoke(dir);
+            List<GitDiffResult> diffResults = GitCmdDiff.Invoke(dir, 1000);
 
             // Parse the results
-            List<DiffInfoCommit> diffInfos = GitDiffParser.Parse(diffResults);
+            List<DiffInfoCommit> diffInfos = GitDiffParser.Parse(diffResults, ".cs");
 
             // Create a new code smell factory
             CodeSmellFactory codeSmellFactory = new CodeSmellFactory(new List<CodeSmell>()
@@ -35,7 +37,7 @@ namespace GitDiff
 
                 foreach (CodeSmellResult codeSmellResult in codeSmellResults)
                 {
-                    Console.WriteLine(codeSmellResult.PrintResult());
+                    Console.WriteLine(codeSmellResult.PrintResult(diffInfo));
                 }
             }
 

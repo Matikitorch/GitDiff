@@ -24,6 +24,9 @@ namespace GitDiff.Syntax
         public List<DiffInfoFile> DiffFile
         { get; } = new();
 
+        public int FileCount
+        { get { return DiffFile.Count; } }
+
         public void AddFile(DiffInfoFile diffInfoFile)
         {
             if (diffInfoFile.NewLinesCount == 0) return;
@@ -34,14 +37,18 @@ namespace GitDiff.Syntax
 
     public class DiffInfoFile
     {
-        public DiffInfoFile(string fileName)
+        public DiffInfoFile(DiffInfoCommit diffCommit, string fileName)
         {
+            DiffCommit = diffCommit;
             FileName = fileName;
         }
 
+        public DiffInfoCommit DiffCommit
+        { get; }
+
         public string FileName
-        { get;  }
-        
+        { get; }
+
         public List<DiffInfoLine> NewLines
         { get; } = new();
 
@@ -56,11 +63,15 @@ namespace GitDiff.Syntax
 
     public class DiffInfoLine
     {
-        public DiffInfoLine(int lineNumber, string line)
+        public DiffInfoLine(DiffInfoFile diffFile, int lineNumber, string line)
         {
+            DiffFile = diffFile;
             LineNumber = lineNumber;
             Line = line;
-        }   
+        }
+
+        public DiffInfoFile DiffFile
+        { get; }
 
         public int LineNumber
         { get; }

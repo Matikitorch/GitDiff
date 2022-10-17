@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GitDiff.Syntax
 {
-    public static class DiffSyntaxNewFile 
+    public static class DiffSyntaxNewFile
     {
         public static string Prefix => "+++";
 
@@ -16,7 +16,7 @@ namespace GitDiff.Syntax
 
             idx = commitLine.IndexOf("b/");
             if (idx < 0) return "NULL";
-            
+
             return commitLine.Substring(idx + 2).Trim();
         }
     }

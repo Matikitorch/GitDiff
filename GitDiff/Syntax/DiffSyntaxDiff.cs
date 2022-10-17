@@ -10,8 +10,9 @@ namespace GitDiff.Syntax
     {
         public static string Prefix => "diff";
 
-        public static DiffInfoCommit Parse(GitDiffResult diffResult)
+        public static DiffInfoCommit Parse(GitDiffResult diffResult, params string[] supportedExtensions)
         {
+            DiffInfoFile diffInfoFile;
             string commitLine;
             string fileName;
             int commitIdx;
@@ -35,21 +36,32 @@ namespace GitDiff.Syntax
                             fileName = DiffSyntaxNewFile.Parse(commitLine);
                         }
 
-                        if (++commitIdx >= diffResult.CommitsCount) throw new InvalidOperationException();
+                        if (++commitIdx >= diffResult.CommitsCount) break;
                         commitLine = diffResult.Commits[commitIdx];
 
                     } while (!commitLine.StartsWith(DiffSyntaxChunk.Prefix));
 
                     // We should've gotten a file name
-                    if (string.IsNullOrEmpty(fileName)) throw new InvalidOperationException();
-
-                    // Parse one or more 'chunk's
-                    while (commitLine.StartsWith(DiffSyntaxChunk.Prefix))
+                    if (string.IsNullOrEmpty(fileName))
                     {
-                        diffInfoCommit.AddFile(DiffSyntaxChunk.Parse(fileName, diffResult, ref commitIdx));
+                        commitIdx += 1;
+                        continue;
+                    }
 
-                        if (commitIdx >= diffResult.CommitsCount) break;
-                        commitLine = diffResult.Commits[commitIdx];
+                    if ((supportedExtensions.Length == 0) || (fileName.Contains('.') && supportedExtensions.Any(fileName.Substring(fileName.LastIndexOf('.')).Contains)))
+                    {
+                        // Parse one or more 'chunk's
+                        while (commitLine.StartsWith(DiffSyntaxChunk.Prefix))
+                        {
+                            diffInfoFile = DiffSyntaxChunk.Parse(diffInfoCommit, fileName, diffResult, ref commitIdx);
+                            if (diffInfoFile.NewLinesCount > 0)
+                            {
+                                diffInfoCommit.AddFile(diffInfoFile);
+                            }
+
+                            if (commitIdx >= diffResult.CommitsCount) break;
+                            commitLine = diffResult.Commits[commitIdx];
+                        }
                     }
                 }
                 else

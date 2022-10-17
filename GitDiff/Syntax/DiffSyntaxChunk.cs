@@ -11,7 +11,7 @@ namespace GitDiff.Syntax
     {
         public static string Prefix => "@@";
 
-        public static DiffInfoFile Parse(string? fileName, GitDiffResult diffResult, ref int commitIdx)
+        public static DiffInfoFile Parse(DiffInfoCommit diffInfoCommit, string? fileName, GitDiffResult diffResult, ref int commitIdx)
         {
             string commitLine;
             int lineNumber;
@@ -19,7 +19,7 @@ namespace GitDiff.Syntax
 
             if (string.IsNullOrEmpty(fileName)) throw new InvalidOperationException();
 
-            DiffInfoFile diffInfoFile = new DiffInfoFile(fileName);
+            DiffInfoFile diffInfoFile = new DiffInfoFile(diffInfoCommit, fileName);
 
             // Remove the prefix
             commitLine = diffResult.Commits[commitIdx].Substring(Prefix.Length).Trim();
@@ -46,7 +46,7 @@ namespace GitDiff.Syntax
                 {
                     if (commitLine.StartsWith(DiffSyntaxNewLine.Prefix))
                     {
-                        diffInfoFile.AddLine(new DiffInfoLine(lineNumber, DiffSyntaxNewLine.Parse(commitLine)));
+                        diffInfoFile.AddLine(new DiffInfoLine(diffInfoFile, lineNumber, DiffSyntaxNewLine.Parse(commitLine)));
                     }
                     else if (!commitLine.StartsWith(' '))
                     {
