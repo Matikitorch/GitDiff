@@ -47,7 +47,7 @@ namespace GitDiff.Smells
             const int headerLen = 100;
             const char headerChar = '=';
             const int smellHeaderLen = 40;
-            const char smellHeaderChar = '*';
+            const char smellHeaderChar = '-';
 
             StringBuilder sb = new StringBuilder();
 
@@ -68,7 +68,7 @@ namespace GitDiff.Smells
 
             foreach (SmellInfo smellInfo in CodeSmellInfo)
             {
-                sb.AppendLine("*** " + smellInfo.DiffInfo.DiffFile.FileName + " ***");
+                sb.AppendLine("File: " + smellInfo.DiffInfo.DiffFile.FileName);
                 sb.AppendLine("Line: " + smellInfo.StartLineNumber + ".." + smellInfo.EndLineNumber);
 
                 foreach (string line in smellInfo.Lines)

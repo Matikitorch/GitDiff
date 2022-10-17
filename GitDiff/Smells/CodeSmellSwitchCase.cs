@@ -18,7 +18,7 @@ namespace GitDiff.Smells
 
         public override string Description => "Most software implementations should not require the use of a switch-case statement.";
 
-        public override string Suggestion => "Attempt to replace switch-case statement with if's and else if's.";
+        public override string Suggestion => "Attempt to replace switch-case statements with if's and else if's.";
 
         private static Regex RegexSwitchCase
         { get; } = new Regex("^\\s*(switch)\\s*\\(([^\\)]*)\\)");
@@ -60,6 +60,7 @@ namespace GitDiff.Smells
 
                                 if (tempInfoLine.Line.Contains('{') && (braces == 0)) braces += 1;
 
+                                // Find the matching brace
                                 while (braces > 0)
                                 {
                                     if (tempInfoLine.LineNumber != (lineNumber + 1)) break;

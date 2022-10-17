@@ -22,7 +22,7 @@ namespace GitDiff
             });
 
             // Invoke a 'git diff'
-            List<GitDiffResult> diffResults = GitCmdDiff.Invoke(dir, 1000);
+            List<GitDiffResult> diffResults = GitCmdDiff.Invoke(dir, 500);
 
             // Parse the 'git diff' results
             List<DiffInfoCommit> diffInfos = GitDiffParser.Parse(diffResults, ".cs");
