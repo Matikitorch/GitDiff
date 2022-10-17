@@ -21,8 +21,7 @@ namespace GitDiff.Syntax
 
             DiffInfoFile diffInfoFile = new DiffInfoFile(diffInfoCommit, fileName);
 
-            // Remove the prefix
-            commitLine = diffResult.Commits[commitIdx].Substring(Prefix.Length).Trim();
+            commitLine = diffResult.CommitResults[commitIdx].Substring(Prefix.Length).Trim();
 
             // Find the '+', we don't care about '-'
             index = commitLine.IndexOf('+');
@@ -34,13 +33,12 @@ namespace GitDiff.Syntax
             if (index < 0) throw new InvalidOperationException();
             lineNumber = int.Parse(commitLine.Substring(0, index));
 
-            // Move the index to the first line
             commitIdx += 1;
 
             // Start parsing
             do
             {
-                commitLine = diffResult.Commits[commitIdx];
+                commitLine = diffResult.CommitResults[commitIdx];
 
                 if (!commitLine.StartsWith(DiffSyntaxOldLine.Prefix))
                 {
@@ -57,7 +55,7 @@ namespace GitDiff.Syntax
                 }
 
                 commitIdx += 1;
-                if (commitIdx >= diffResult.CommitsCount) break;
+                if (commitIdx >= diffResult.Count) break;
 
             } while (true);
 

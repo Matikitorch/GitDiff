@@ -11,6 +11,11 @@ namespace GitDiff
 {
     public static class GitCmdLog
     {
+        /// <summary>
+        /// Invokes a 'git log'
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static List<GitLogResult> Invoke(string path)
         {
             using (PowerShell ps = PowerShell.Create())
@@ -22,12 +27,17 @@ namespace GitDiff
             }
         }
 
+        /// <summary>
+        /// Parses the result of a 'git log' into names and commit IDs
+        /// </summary>
+        /// <param name="results"></param>
+        /// <returns></returns>
         private static List<GitLogResult> ParseGitLog(Collection<string> results)
         {
             string commitName, commitID;
             int idx;
 
-            List<GitLogResult> logResults = new();
+            List<GitLogResult> logResults = new List<GitLogResult>();
 
             foreach (string result in results)
             {
@@ -52,15 +62,18 @@ namespace GitDiff
         }
     }
 
+    /// <summary>
+    /// Data container for a 'git log'
+    /// </summary>
     public class GitLogResult
     {
-        public GitLogResult(string name, string commitID)
+        public GitLogResult(string commitName, string commitID)
         {
-            Name = name;
+            CommitName = commitName;
             CommitID = commitID;
         }
 
-        public string Name
+        public string CommitName
         { get; }
 
         public string CommitID

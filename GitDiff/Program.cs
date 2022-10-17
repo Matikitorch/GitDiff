@@ -13,16 +13,7 @@ namespace GitDiff
     {
         static void Main(string[] args)
         {
-            List<CodeSmellResult> codeSmellResults;
-
-            //string dir = @"C:\Projects\Visual Studio\GitDiffTestSolution";
             string dir = @"C:\Projects\Visual Studio\Powershell";
-
-            // Get the results from a "git diff" command
-            List<GitDiffResult> diffResults = GitCmdDiff.Invoke(dir, 1000);
-
-            // Parse the results
-            List<DiffInfoCommit> diffInfos = GitDiffParser.Parse(diffResults, ".cs");
 
             // Create a new code smell factory
             CodeSmellFactory codeSmellFactory = new CodeSmellFactory(new List<CodeSmell>()
@@ -30,14 +21,21 @@ namespace GitDiff
                 new CodeSmellSwitchCase()
             });
 
-            // Analyze the results
+            // Invoke a 'git diff'
+            List<GitDiffResult> diffResults = GitCmdDiff.Invoke(dir, 1000);
+
+            // Parse the 'git diff' results
+            List<DiffInfoCommit> diffInfos = GitDiffParser.Parse(diffResults, ".cs");
+
+            // Analyze the results on a commit by commit basis
             foreach (DiffInfoCommit diffInfo in diffInfos)
             {
-                codeSmellResults = codeSmellFactory.Analyze(diffInfo);
+                List<CodeSmellResult> codeSmellResults = codeSmellFactory.Analyze(diffInfo);
 
                 foreach (CodeSmellResult codeSmellResult in codeSmellResults)
                 {
-                    Console.WriteLine(codeSmellResult.PrintResult(diffInfo));
+                    // Print the results of the smell analysis
+                    Console.WriteLine(codeSmellResult.PrintResult());
                 }
             }
 

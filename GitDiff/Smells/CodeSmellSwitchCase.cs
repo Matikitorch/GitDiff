@@ -21,14 +21,14 @@ namespace GitDiff.Smells
         public override string Suggestion => "Attempt to replace switch-case statement with if's and else if's.";
 
         private static Regex RegexSwitchCase
-        { get; } = new("^\\s*(switch)\\s*\\(([^\\)]*)\\)");
+        { get; } = new Regex("^\\s*(switch)\\s*\\(([^\\)]*)\\)");
 
         public override CodeSmellResult Analyze(DiffInfoCommit diffInfoCommit)
         {
             DiffInfoLine tempInfoLine;
             int idx, lineNumber, braces;
 
-            CodeSmellResult codeSmellResult = new(this);
+            CodeSmellResult codeSmellResult = new CodeSmellResult(this, diffInfoCommit);
 
             foreach (DiffInfoFile diffInfoFile in diffInfoCommit.DiffFile)
             {
@@ -55,7 +55,7 @@ namespace GitDiff.Smells
                                 }
 
                                 idx += 1;
-                                if (idx >= diffInfoFile.NewLinesCount) break;
+                                if (idx >= diffInfoFile.Count) break;
                                 tempInfoLine = diffInfoFile.NewLines[idx];
 
                                 if (tempInfoLine.Line.Contains('{') && (braces == 0)) braces += 1;
@@ -70,7 +70,7 @@ namespace GitDiff.Smells
                                     lines.Add(tempInfoLine);
 
                                     idx += 1;
-                                    if (idx >= diffInfoFile.NewLinesCount) break;
+                                    if (idx >= diffInfoFile.Count) break;
                                     tempInfoLine = diffInfoFile.NewLines[idx];
 
                                     if (tempInfoLine.Line.Contains('{')) braces += 1;

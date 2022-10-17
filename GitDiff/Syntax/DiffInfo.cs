@@ -7,34 +7,40 @@ using System.Threading.Tasks;
 
 namespace GitDiff.Syntax
 {
+    /// <summary>
+    /// Data container for a single commit
+    /// </summary>
     public class DiffInfoCommit
     {
-        public DiffInfoCommit(string name, string id)
+        public DiffInfoCommit(string commitName, string commitID)
         {
-            Name = name;
-            ID = id;
+            CommitName = commitName;
+            CommitID = commitID;
         }
 
-        public string Name
+        public string CommitName
         { get; }
 
-        public string ID
+        public string CommitID
         { get; }
 
         public List<DiffInfoFile> DiffFile
-        { get; } = new();
+        { get; } = new List<DiffInfoFile>();
 
-        public int FileCount
+        public int Count
         { get { return DiffFile.Count; } }
 
-        public void AddFile(DiffInfoFile diffInfoFile)
+        public void AddFile(DiffInfoFile diffFile)
         {
-            if (diffInfoFile.NewLinesCount == 0) return;
+            if (diffFile.Count == 0) return;
 
-            DiffFile.Add(diffInfoFile);
+            DiffFile.Add(diffFile);
         }
     }
 
+    /// <summary>
+    /// Data container for a single commit in a single file
+    /// </summary>
     public class DiffInfoFile
     {
         public DiffInfoFile(DiffInfoCommit diffCommit, string fileName)
@@ -50,9 +56,9 @@ namespace GitDiff.Syntax
         { get; }
 
         public List<DiffInfoLine> NewLines
-        { get; } = new();
+        { get; } = new List<DiffInfoLine>();
 
-        public int NewLinesCount
+        public int Count
         { get { return NewLines.Count; } }
 
         public void AddLine(DiffInfoLine diffInfoLine)
@@ -61,6 +67,9 @@ namespace GitDiff.Syntax
         }
     }
 
+    /// <summary>
+    /// Data container for a commit in single file at a specific line
+    /// </summary>
     public class DiffInfoLine
     {
         public DiffInfoLine(DiffInfoFile diffFile, int lineNumber, string line)

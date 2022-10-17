@@ -10,18 +10,25 @@ using Markdig.Helpers;
 
 namespace GitDiff.Smells
 {
+    /// <summary>
+    /// Data container for a smelly commit
+    /// </summary>
     public class CodeSmellResult
     {
-        public CodeSmellResult(CodeSmell codeSmell)
+        public CodeSmellResult(CodeSmell codeSmell, DiffInfoCommit diffInfoCommit)
         {
             CodeSmell = codeSmell;
+            Commit = diffInfoCommit;
         }
 
         public CodeSmell CodeSmell
         { get; }
 
+        public DiffInfoCommit Commit
+        { get; }
+
         public List<SmellInfo> CodeSmellInfo
-        { get; } = new();
+        { get; } = new List<SmellInfo>();
 
         public int Counts
         { get { return CodeSmellInfo.Count; } }
@@ -31,18 +38,22 @@ namespace GitDiff.Smells
             CodeSmellInfo.Add(smellInfo);
         }
 
-        public string PrintResult(DiffInfoCommit diffInfo)
+        /// <summary>
+        /// Returns a user-friendly printable string of all the smelly code
+        /// </summary>
+        /// <returns></returns>
+        public string PrintResult()
         {
             const int headerLen = 100;
             const char headerChar = '=';
             const int smellHeaderLen = 40;
             const char smellHeaderChar = '*';
 
-            StringBuilder sb = new();
+            StringBuilder sb = new StringBuilder();
 
             sb.AppendLine(new string(headerChar, headerLen));
-            sb.AppendLine(CenterString(diffInfo.Name.ToUpper(), headerLen));
-            sb.AppendLine(CenterString(diffInfo.ID.ToUpper(), headerLen));
+            sb.AppendLine(CenterString(Commit.CommitName.ToUpper(), headerLen));
+            sb.AppendLine(CenterString(Commit.CommitID.ToUpper(), headerLen));
             sb.AppendLine(new string(headerChar, headerLen));
             sb.AppendLine();
 
@@ -78,6 +89,9 @@ namespace GitDiff.Smells
         }
     }
 
+    /// <summary>
+    /// Data container for a smelly line of code
+    /// </summary>
     public class SmellInfo
     {
         public SmellInfo(DiffInfoLine diffLine)
@@ -95,7 +109,7 @@ namespace GitDiff.Smells
         }
 
         public List<DiffInfoLine> DiffLines
-        { get; } = new();
+        { get; } = new List<DiffInfoLine>();
 
         public DiffInfoLine DiffInfo
         { get { return DiffLines[0]; } }
@@ -145,7 +159,7 @@ namespace GitDiff.Smells
             {
                 if (_lines == null)
                 {
-                    _lines = new();
+                    _lines = new List<string>();
                     foreach (DiffInfoLine diffInfoLine in DiffLines)
                     {
                         _lines.Add(diffInfoLine.Line);

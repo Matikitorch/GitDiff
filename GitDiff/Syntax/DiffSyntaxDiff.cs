@@ -17,12 +17,12 @@ namespace GitDiff.Syntax
             string fileName;
             int commitIdx;
 
-            DiffInfoCommit diffInfoCommit = new(diffResult.Name, diffResult.ID);
+            DiffInfoCommit diffInfoCommit = new DiffInfoCommit(diffResult.CommitName, diffResult.CommitID);
 
             commitIdx = 0;
-            while (commitIdx < diffResult.CommitsCount)
+            while (commitIdx < diffResult.Count)
             {
-                commitLine = diffResult.Commits[commitIdx];
+                commitLine = diffResult.CommitResults[commitIdx];
 
                 if (commitLine.StartsWith(DiffSyntaxDiff.Prefix))
                 {
@@ -36,8 +36,8 @@ namespace GitDiff.Syntax
                             fileName = DiffSyntaxNewFile.Parse(commitLine);
                         }
 
-                        if (++commitIdx >= diffResult.CommitsCount) break;
-                        commitLine = diffResult.Commits[commitIdx];
+                        if (++commitIdx >= diffResult.Count) break;
+                        commitLine = diffResult.CommitResults[commitIdx];
                     } while (!commitLine.StartsWith(DiffSyntaxChunk.Prefix));
 
                     // We should've gotten a file name
@@ -53,13 +53,13 @@ namespace GitDiff.Syntax
                         while (commitLine.StartsWith(DiffSyntaxChunk.Prefix))
                         {
                             diffInfoFile = DiffSyntaxChunk.Parse(diffInfoCommit, fileName, diffResult, ref commitIdx);
-                            if (diffInfoFile.NewLinesCount > 0)
+                            if (diffInfoFile.Count > 0)
                             {
                                 diffInfoCommit.AddFile(diffInfoFile);
                             }
 
-                            if (commitIdx >= diffResult.CommitsCount) break;
-                            commitLine = diffResult.Commits[commitIdx];
+                            if (commitIdx >= diffResult.Count) break;
+                            commitLine = diffResult.CommitResults[commitIdx];
                         }
                     }
                 }

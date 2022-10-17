@@ -11,14 +11,20 @@ namespace GitDiff
 {
     public class GitCmdDiff
     {
-        public static List<GitDiffResult> Invoke(string path, uint depth = uint.MaxValue)
+        /// <summary>
+        /// Invokes a 'git diff'
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="depth"></param>
+        /// <returns></returns>
+        public static List<GitDiffResult> Invoke(string path, uint depth = 10000)
         {
-            List<GitDiffResult> diffResults = new();
+            List<GitDiffResult> diffResults = new List<GitDiffResult>();
             List<GitLogResult> logResults;
             GitLogResult newCommit, oldCommit;
             Collection<string> commits;
 
-            // Get a list of all the commits
+            // Invoke a 'git log' command
             logResults = GitCmdLog.Invoke(path);
 
             for (int i = 0; (i < logResults.Count - 1) && (i < depth); i++)
@@ -34,7 +40,7 @@ namespace GitDiff
                     commits = ps.Invoke<string>();
                     if ((commits != null) && (commits.Count > 0))
                     {
-                        diffResults.Add(new GitDiffResult(newCommit.Name, newCommit.CommitID, commits.ToList()));
+                        diffResults.Add(new GitDiffResult(newCommit.CommitName, newCommit.CommitID, commits.ToList()));
                     }
                 }
             }
@@ -43,25 +49,28 @@ namespace GitDiff
         }
     }
 
+    /// <summary>
+    /// Data container for a 'git diff'
+    /// </summary>
     public class GitDiffResult
     {
-        public GitDiffResult(string name, string id, List<string> results)
+        public GitDiffResult(string commitName, string commitID, List<string> commitResults)
         {
-            Name = name;
-            ID = id;
-            Commits = results;
+            CommitName = commitName;
+            CommitID = commitID;
+            CommitResults = commitResults;
         }
 
-        public string Name
+        public string CommitName
         { get; }
 
-        public string ID
+        public string CommitID
         { get; }
 
-        public List<string> Commits
+        public List<string> CommitResults
         { get; }
 
-        public int CommitsCount
-        { get { return Commits.Count; } }
+        public int Count
+        { get { return CommitResults.Count; } }
     }
 }

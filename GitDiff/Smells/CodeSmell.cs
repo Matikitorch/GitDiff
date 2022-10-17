@@ -8,6 +8,9 @@ using GitDiff.Syntax;
 
 namespace GitDiff.Smells
 {
+    /// <summary>
+    /// All code smells must implement this contract
+    /// </summary>
     public abstract class CodeSmell
     {
         public CodeSmell(CodeSmellSeverity severity)
