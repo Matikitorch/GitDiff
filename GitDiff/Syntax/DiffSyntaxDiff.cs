@@ -38,7 +38,6 @@ namespace GitDiff.Syntax
 
                         if (++commitIdx >= diffResult.CommitsCount) break;
                         commitLine = diffResult.Commits[commitIdx];
-
                     } while (!commitLine.StartsWith(DiffSyntaxChunk.Prefix));
 
                     // We should've gotten a file name

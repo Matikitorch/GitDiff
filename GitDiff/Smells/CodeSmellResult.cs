@@ -58,8 +58,6 @@ namespace GitDiff.Smells
             foreach (SmellInfo smellInfo in CodeSmellInfo)
             {
                 sb.AppendLine("*** " + smellInfo.DiffInfo.DiffFile.FileName + " ***");
-                sb.AppendLine("Commit Name: " + smellInfo.DiffInfo.DiffFile.DiffCommit.Name);
-                sb.AppendLine("Commit ID: " + smellInfo.DiffInfo.DiffFile.DiffCommit.ID);
                 sb.AppendLine("Line: " + smellInfo.StartLineNumber + ".." + smellInfo.EndLineNumber);
 
                 foreach (string line in smellInfo.Lines)
