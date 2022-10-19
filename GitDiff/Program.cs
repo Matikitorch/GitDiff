@@ -18,7 +18,8 @@ namespace GitDiff
             // Create a new code smell factory
             CodeSmellFactory codeSmellFactory = new CodeSmellFactory(new List<CodeSmell>()
             {
-                new CodeSmellSwitchCase()
+                new CodeSmellSwitchCase(),
+                new CodeSmellDuplicate(),
             });
 
             // Invoke a 'git diff'

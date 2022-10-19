@@ -86,5 +86,50 @@ namespace GitDiff.Smells
 
             return codeSmellResult;
         }
+
+        public override void Print(StringBuilder sb, SmellInfo smellInfo)
+        {
+            int startLine, lineNumber;
+            List<string> linesToAdd = new List<string>();
+
+            sb.AppendLine("File: " + smellInfo.FirstDiff.DiffFile.FileName);
+
+            startLine = smellInfo.StartLineNumber;
+            lineNumber = smellInfo.StartLineNumber - 1;
+            for (int i = 0; i < smellInfo.LineCount; i++)
+            {
+                DiffInfoLine diffInfoLine = smellInfo.DiffLines[i];
+
+                linesToAdd.Add("+" + diffInfoLine.Line);
+
+                if (startLine < 0)
+                {
+                    startLine = diffInfoLine.LineNumber;
+                }
+
+                if (((lineNumber + 1) != diffInfoLine.LineNumber) || (i == (smellInfo.LineCount - 1)))
+                {
+                    PrintLines(sb, startLine, diffInfoLine.LineNumber, linesToAdd);
+                    startLine = -1;
+                }
+
+                lineNumber = diffInfoLine.LineNumber;
+            }
+        }
+
+        private void PrintLines(StringBuilder sb, int startLine, int endLine, List<string> lines)
+        {
+            if (lines.Count == 0) return;
+
+            sb.AppendLine("Line: " + startLine + ".." + endLine);
+
+            foreach (string line in lines)
+            {
+                sb.AppendLine(line);
+            }
+
+            sb.AppendLine();
+            lines.Clear();
+        }
     }
 }

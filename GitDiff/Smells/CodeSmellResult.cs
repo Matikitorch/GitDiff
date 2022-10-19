@@ -27,15 +27,15 @@ namespace GitDiff.Smells
         public DiffInfoCommit Commit
         { get; }
 
-        public List<SmellInfo> CodeSmellInfo
+        public List<SmellInfo> CodeSmellList
         { get; } = new List<SmellInfo>();
 
         public int Counts
-        { get { return CodeSmellInfo.Count; } }
+        { get { return CodeSmellList.Count; } }
 
         public void AddSmell(SmellInfo smellInfo)
         {
-            CodeSmellInfo.Add(smellInfo);
+            CodeSmellList.Add(smellInfo);
         }
 
         /// <summary>
@@ -66,17 +66,9 @@ namespace GitDiff.Smells
             sb.AppendLine("Suggestion: " + CodeSmell.Suggestion);
             sb.AppendLine();
 
-            foreach (SmellInfo smellInfo in CodeSmellInfo)
+            foreach (SmellInfo smellInfo in CodeSmellList)
             {
-                sb.AppendLine("File: " + smellInfo.DiffInfo.DiffFile.FileName);
-                sb.AppendLine("Line: " + smellInfo.StartLineNumber + ".." + smellInfo.EndLineNumber);
-
-                foreach (string line in smellInfo.Lines)
-                {
-                    sb.AppendLine("+" + line);
-                }
-
-                sb.AppendLine();
+                CodeSmell.Print(sb, smellInfo);
             }
 
             return sb.ToString();
@@ -94,11 +86,11 @@ namespace GitDiff.Smells
     /// </summary>
     public class SmellInfo
     {
-        public SmellInfo(DiffInfoLine diffLine)
+        public SmellInfo(params DiffInfoLine[] diffLine)
         {
-            if (diffLine == null) throw new ArgumentException();
+            if ((diffLine == null) || (diffLine.Length == 0)) throw new ArgumentException();
 
-            DiffLines.Add(diffLine);
+            DiffLines.AddRange(diffLine);
         }
 
         public SmellInfo(List<DiffInfoLine> diffLines)
@@ -111,7 +103,7 @@ namespace GitDiff.Smells
         public List<DiffInfoLine> DiffLines
         { get; } = new List<DiffInfoLine>();
 
-        public DiffInfoLine DiffInfo
+        public DiffInfoLine FirstDiff
         { get { return DiffLines[0]; } }
 
         public int LineCount
@@ -121,54 +113,49 @@ namespace GitDiff.Smells
         {
             get
             {
-                if (_startLineNumber == -1)
+                int _startLineNumber = FirstDiff.LineNumber;
+                foreach (DiffInfoLine diffInfoLine in DiffLines)
                 {
-                    _startLineNumber = DiffInfo.LineNumber;
-                    foreach (DiffInfoLine diffInfoLine in DiffLines)
-                    {
-                        if (diffInfoLine.LineNumber < _startLineNumber) _startLineNumber = diffInfoLine.LineNumber;
-                    }
+                    if (diffInfoLine.LineNumber < _startLineNumber) _startLineNumber = diffInfoLine.LineNumber;
                 }
 
                 return _startLineNumber;
             }
         }
-        private int _startLineNumber = -1;
 
         public int EndLineNumber
         {
             get
             {
-                if (_endLineNumber == -1)
+                int _endLineNumber = FirstDiff.LineNumber;
+                foreach (DiffInfoLine diffInfoLine in DiffLines)
                 {
-                    _endLineNumber = DiffInfo.LineNumber;
-                    foreach (DiffInfoLine diffInfoLine in DiffLines)
-                    {
-                        if (diffInfoLine.LineNumber > _endLineNumber) _endLineNumber = diffInfoLine.LineNumber;
-                    }
+                    if (diffInfoLine.LineNumber > _endLineNumber) _endLineNumber = diffInfoLine.LineNumber;
                 }
 
                 return _endLineNumber;
             }
         }
-        private int _endLineNumber = -1;
 
         public List<string> Lines
         {
             get
             {
-                if (_lines == null)
+                List<string> _lines = new List<string>();
+                foreach (DiffInfoLine diffInfoLine in DiffLines)
                 {
-                    _lines = new List<string>();
-                    foreach (DiffInfoLine diffInfoLine in DiffLines)
-                    {
-                        _lines.Add(diffInfoLine.Line);
-                    }
+                    _lines.Add(diffInfoLine.Line);
                 }
 
                 return _lines;
             }
         }
-        private List<string> _lines = null;
+
+        public void AddDiffLine(DiffInfoLine diffInfoLine)
+        {
+            if (diffInfoLine == null) return;
+
+            DiffLines.Add(diffInfoLine);
+        }
     }
 }
