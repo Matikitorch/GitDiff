@@ -17,9 +17,9 @@ namespace GitDiff.Smells
 
         public override string Title => "Duplicate Lines";
 
-        public override string Description => "Rendundant code can be a nightmare to maintain, try to reduce the number of duplicated lines of code.";
+        public override string Description => "Rendundant code can be a nightmare to maintain, try to reduce the number of duplicated lines of code";
 
-        public override string Suggestion => "Refactor code, like pull-up, to remove duplicate lines of code.";
+        public override string Suggestion => "Refactor code, like pull-up, to remove duplicate lines of code";
 
         public override CodeSmellResult Analyze(DiffInfoCommit diffInfoCommit)
         {
@@ -111,7 +111,7 @@ namespace GitDiff.Smells
             "bool", "byte", "sbyte", "short", "ushort", "int", "uint", "long", "ulong", "double", "float", "decimal",
             "string", "char", "void", "object", "typeof", "sizeof", "null", "true", "false", "if", "else", "while", "for", "foreach", "do", "switch",
             "case", "default", "lock", "try", "throw", "catch", "finally", "goto", "break", "continue", "return", "public", "private", "internal",
-            "protected", "static", "readonly", "sealed", "const", "fixed", "stackalloc", "volatile", "new", "override", "abstract", "virtual",
+            "protected", "static", "readonly", "get", "set", "sealed", "const", "fixed", "stackalloc", "volatile", "new", "override", "abstract", "virtual",
             "event", "extern", "ref", "out", "in", "is", "as", "params", "__arglist", "__makeref", "__reftype", "__refvalue", "this", "base",
             "namespace", "using", "class", "struct", "interface", "enum", "delegate", "checked", "unchecked", "unsafe", "operator", "implicit", "explicit"
         };

@@ -20,6 +20,7 @@ namespace GitDiff
             {
                 new CodeSmellSwitchCase(),
                 new CodeSmellDuplicate(),
+                new CodeSmellLongParameter(),
             });
 
             // Invoke a 'git diff'
