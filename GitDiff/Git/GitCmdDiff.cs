@@ -7,25 +7,22 @@ using System.Management.Automation;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GitDiff
+namespace GitDiff.Git
 {
     public class GitCmdDiff
     {
         /// <summary>
         /// Invokes a 'git diff'
         /// </summary>
+        /// <param name="logResults"></param>
         /// <param name="path"></param>
         /// <param name="depth"></param>
         /// <returns></returns>
-        public static List<GitDiffResult> Invoke(string path, uint depth = 10000)
+        public List<GitDiffResult> Invoke(List<GitLogResult> logResults, string path, uint depth = uint.MaxValue)
         {
             List<GitDiffResult> diffResults = new List<GitDiffResult>();
-            List<GitLogResult> logResults;
             GitLogResult newCommit, oldCommit;
             Collection<string> commits;
-
-            // Invoke a 'git log' command
-            logResults = GitCmdLog.Invoke(path);
 
             for (int i = 0; (i < logResults.Count - 1) && (i < depth); i++)
             {
@@ -38,7 +35,7 @@ namespace GitDiff
                     ps.AddScript("git diff " + oldCommit.CommitID + "..." + newCommit.CommitID);
 
                     commits = ps.Invoke<string>();
-                    if ((commits != null) && (commits.Count > 0))
+                    if (commits != null && commits.Count > 0)
                     {
                         diffResults.Add(new GitDiffResult(newCommit.CommitName, newCommit.CommitID, commits.ToList()));
                     }

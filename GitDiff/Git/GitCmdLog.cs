@@ -7,16 +7,16 @@ using System.Management.Automation;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GitDiff
+namespace GitDiff.Git
 {
-    public static class GitCmdLog
+    public class GitCmdLog
     {
         /// <summary>
         /// Invokes a 'git log'
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static List<GitLogResult> Invoke(string path)
+        public List<GitLogResult> Invoke(string path)
         {
             using (PowerShell ps = PowerShell.Create())
             {
@@ -32,7 +32,7 @@ namespace GitDiff
         /// </summary>
         /// <param name="results"></param>
         /// <returns></returns>
-        private static List<GitLogResult> ParseGitLog(Collection<string> results)
+        private List<GitLogResult> ParseGitLog(Collection<string> results)
         {
             string commitName, commitID;
             int idx;

@@ -12,9 +12,12 @@ namespace GitDiff.Smells
     /// </summary>
     public class CodeSmellFactory
     {
-        public CodeSmellFactory(IEnumerable<CodeSmell> codeSmells)
+        public CodeSmellFactory(IEnumerable<CodeSmell> codeSmells= null)
         {
-            CodeSmellList.AddRange(codeSmells);
+            if (codeSmells != null)
+            {
+                CodeSmellList.AddRange(codeSmells);
+            }
         }
 
         public List<CodeSmell> CodeSmellList

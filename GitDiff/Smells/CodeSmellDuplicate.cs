@@ -11,6 +11,8 @@ namespace GitDiff.Smells
 {
     public class CodeSmellDuplicate : CodeSmell
     {
+        private static int MinNumOfCharacters = 25;
+
         public CodeSmellDuplicate()
             : base(CodeSmellSeverity.Warning)
         { }
@@ -40,6 +42,8 @@ namespace GitDiff.Smells
 
         private void FindMatch(DiffInfoLine diffInfoLine, CodeSmellResult codeSmellResult)
         {
+            if (diffInfoLine.Line.Trim().Length < MinNumOfCharacters) return;
+
             if (GetHash(diffInfoLine.Line, out object key))
             {
                 if (!DuplicateLines.TryGetValue(key, out DiffInfoLine match))

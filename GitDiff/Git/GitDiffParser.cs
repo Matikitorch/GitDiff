@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using GitDiff.Syntax;
 
-namespace GitDiff
+namespace GitDiff.Git
 {
-    public static class GitDiffParser
+    public class GitDiffParser
     {
         /// <summary>
         /// Given a list of results from a 'git diff' command, this function will iterate through all of
@@ -18,7 +18,7 @@ namespace GitDiff
         /// <param name="diffResults"></param>
         /// <param name="supportedExtensions"></param>
         /// <returns></returns>
-        public static List<DiffInfoCommit> Parse(List<GitDiffResult> diffResults, params string[] supportedExtensions)
+        public List<DiffInfoCommit> Parse(List<GitDiffResult> diffResults, params string[] supportedExtensions)
         {
             DiffInfoCommit diffInfoCommit;
             List<DiffInfoCommit> diffInfoCommits = new List<DiffInfoCommit>();
