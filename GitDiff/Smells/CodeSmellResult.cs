@@ -10,6 +10,31 @@ using Markdig.Helpers;
 
 namespace GitDiff.Smells
 {
+    public class CodeSmellResults
+    {
+        public List<CodeSmellResult> CodeSmellResultList
+        { get; } = new List<CodeSmellResult>();
+
+        public void Add(CodeSmellResult codeSmellResult)
+        {
+            if ((codeSmellResult == null) || !codeSmellResult.HasSmells) return;
+
+            CodeSmellResultList.Add(codeSmellResult);
+        }
+
+        public string GetString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach(CodeSmellResult codeSmellResult in CodeSmellResultList)
+            {
+                sb.AppendLine(codeSmellResult.PrintResult());
+            }
+
+            return sb.ToString();
+        }
+    }
+
     /// <summary>
     /// Data container for a smelly commit
     /// </summary>
@@ -32,6 +57,9 @@ namespace GitDiff.Smells
 
         public int Counts
         { get { return CodeSmellList.Count; } }
+
+        public bool HasSmells
+        { get { return Counts > 0; } }
 
         public void AddSmell(SmellInfo smellInfo)
         {

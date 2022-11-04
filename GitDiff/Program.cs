@@ -32,13 +32,11 @@ namespace GitDiff
             // Analyze the results on a commit by commit basis
             foreach (DiffInfoCommit diffInfo in diffInfos)
             {
-                List<CodeSmellResult> codeSmellResults = codeSmellFactory.Analyze(diffInfo);
+                CodeSmellResults codeSmellResults = codeSmellFactory.Analyze(diffInfo);
 
-                foreach (CodeSmellResult codeSmellResult in codeSmellResults)
-                {
-                    // Print the results of the smell analysis
-                    Console.WriteLine(codeSmellResult.PrintResult());
-                }
+                // Print the results of the smell analysis
+                string toPrint = codeSmellResults.GetString();
+                if (!string.IsNullOrEmpty(toPrint)) Console.WriteLine(toPrint);
             }
 
             Console.WriteLine();

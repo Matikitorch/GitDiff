@@ -61,7 +61,7 @@ namespace GitDiff.Smells
 
         public override void Print(StringBuilder sb, SmellInfo smellInfo)
         {
-            sb.AppendLine("[" + smellInfo.FirstDiff.LineNumber + "]: " + smellInfo.FirstDiff.Line);
+            sb.AppendLine("[" + smellInfo.FirstDiff.LineNumber + "]: " + smellInfo.FirstDiff.Line.Trim());
         }
     }
 }

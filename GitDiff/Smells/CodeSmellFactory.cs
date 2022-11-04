@@ -36,19 +36,14 @@ namespace GitDiff.Smells
         /// <param name="diffInfoCommit"></param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public List<CodeSmellResult> Analyze(DiffInfoCommit diffInfoCommit)
+        public CodeSmellResults Analyze(DiffInfoCommit diffInfoCommit)
         {
             if (Count == 0) throw new InvalidOperationException();
-            List<CodeSmellResult> codeSmellResults = new List<CodeSmellResult>();
+            CodeSmellResults codeSmellResults = new CodeSmellResults();
 
             foreach (CodeSmell codeSmell in CodeSmellList)
             {
-                CodeSmellResult codeSmellResult = codeSmell.Analyze(diffInfoCommit);
-
-                if (codeSmellResult.Counts > 0)
-                {
-                    codeSmellResults.Add(codeSmellResult);
-                }
+                codeSmellResults.Add(codeSmell.Analyze(diffInfoCommit));
             }
 
             return codeSmellResults;
