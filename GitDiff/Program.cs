@@ -13,21 +13,28 @@ namespace GitDiff
     public class Program
     {
         /// <summary>
-        /// Directory of project
+        /// Project's directory
         /// </summary>
         private static readonly string Directory = @"C:\Projects\Visual Studio\Powershell";
+
+        /// <summary>
+        /// Number of commits to analyze
+        /// </summary>
+        private static readonly uint CommitLayers = 500;
+
+        /// <summary>
+        /// Only look at files with these extensions
+        /// </summary>
+        private static readonly string[] ExtensionFilter = { ".cs" };
 
         static void Main(string[] args)
         {
             // Get a list of commits
-            GitCmd git = new  GitCmd();
-            List<DiffInfoCommit> diffInfos = git.GetCommits(Directory, 500, ".cs");
+            GitCmd git = new GitCmd();
+            List<DiffInfoCommit> diffInfos = git.GetCommits(Directory, CommitLayers, ExtensionFilter);
 
             // Create a new code smell factory
             CodeSmellFactory codeSmellFactory = new CodeSmellFactory();
-            codeSmellFactory.AddCodeSmell(new CodeSmellSwitchCase());
-            codeSmellFactory.AddCodeSmell(new CodeSmellDuplicate());
-            codeSmellFactory.AddCodeSmell(new CodeSmellLongParameter());
 
             // Analyze the results on a commit by commit basis
             foreach (DiffInfoCommit diffInfo in diffInfos)
