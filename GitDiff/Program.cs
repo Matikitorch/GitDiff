@@ -25,13 +25,13 @@ namespace GitDiff
         /// <summary>
         /// Only look at files with these extensions
         /// </summary>
-        private static readonly string[] ExtensionFilter = { ".cs" };
+        private static readonly string[] FileExtensionFilter = { ".cs" };
 
         static void Main(string[] args)
         {
             // Get a list of commits
             GitCmd git = new GitCmd();
-            List<DiffInfoCommit> diffInfos = git.GetCommits(Directory, CommitLayers, ExtensionFilter);
+            List<DiffInfoCommit> diffInfos = git.GetCommits(Directory, CommitLayers, FileExtensionFilter);
 
             // Create a new code smell factory
             CodeSmellFactory codeSmellFactory = new CodeSmellFactory();
