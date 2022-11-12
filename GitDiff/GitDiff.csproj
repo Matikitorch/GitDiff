@@ -20,4 +20,10 @@
     <PackageReference Include="System.Management.Automation" Version="7.2.6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="GitDiff.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

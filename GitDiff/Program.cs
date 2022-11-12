@@ -15,20 +15,26 @@ namespace GitDiff
         /// <summary>
         /// Project's directory
         /// </summary>
-        private static readonly string Directory = @"C:\Projects\Visual Studio\Powershell";
+        private static string Directory;
 
         /// <summary>
         /// Number of commits to analyze
         /// </summary>
-        private static readonly uint CommitLayers = 500;
+        private static uint CommitLayers;
 
         /// <summary>
         /// Only look at files with these extensions
         /// </summary>
-        private static readonly string[] FileExtensionFilter = { ".cs" };
+        private static string[] FileExtensionFilter;
 
         static void Main(string[] args)
         {
+            // Read in the INI file
+            IniFile myIniFile = new IniFile();
+            Directory = myIniFile.Read("Directory");
+            CommitLayers = uint.Parse(myIniFile.Read("CommitLayers"));
+            FileExtensionFilter = myIniFile.Read("FileExtensionFilter").Split(',');
+
             // Get a list of commits
             GitCmd git = new GitCmd();
             List<DiffInfoCommit> diffInfos = git.GetCommits(Directory, CommitLayers, FileExtensionFilter);
