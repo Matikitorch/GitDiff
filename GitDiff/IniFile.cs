@@ -16,10 +16,10 @@ namespace GitDiff
             Path = new FileInfo(IniPath ?? EXE + ".ini").FullName;
         }
 
-        public string Read(string Key, string Section = null)
+        public string Read(string Key, string Section = null, string Default = "")
         {
-            var RetVal = new StringBuilder(255);
-            GetString(Section ?? EXE, Key, "", RetVal, 255, Path);
+            var RetVal = new StringBuilder();
+            GetString(Section ?? EXE, Key, Default, RetVal, Path);
             return RetVal.ToString();
         }
 
@@ -43,7 +43,7 @@ namespace GitDiff
             return Read(Key, Section).Length > 0;
         }
 
-        private void GetString(string Section, string Key, string Default, StringBuilder RetVal, int Size, string FilePath)
+        private void GetString(string Section, string Key, string Default, StringBuilder RetVal, string FilePath)
         {
             string line;
 
