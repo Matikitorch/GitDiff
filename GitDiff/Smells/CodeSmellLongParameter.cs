@@ -59,7 +59,7 @@ namespace GitDiff.Smells
             return codeSmellResult;
         }
 
-        public override void Print(StringBuilder sb, SmellInfo smellInfo)
+        public override void ToString(StringBuilder sb, SmellInfo smellInfo)
         {
             sb.AppendLine("[" + smellInfo.FirstDiff.LineNumber + "]: " + smellInfo.FirstDiff.Line.Trim());
         }

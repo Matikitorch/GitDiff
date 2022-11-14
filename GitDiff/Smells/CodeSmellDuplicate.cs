@@ -96,7 +96,7 @@ namespace GitDiff.Smells
             DuplicateSmellInfo.Clear();
         }
 
-        public override void Print(StringBuilder sb, SmellInfo smellInfo)
+        public override void ToString(StringBuilder sb, SmellInfo smellInfo)
         {
             if (smellInfo.LineCount == 0) return;
 

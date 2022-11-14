@@ -87,20 +87,40 @@ namespace GitDiff.Smells
             return codeSmellResult;
         }
 
-        public override void Print(StringBuilder sb, SmellInfo smellInfo)
+        public override void ToString(StringBuilder sb, SmellInfo smellInfo)
         {
-            int startLine, lineNumber;
+            int startLine, lineNumber, whitespaceIdx;
             List<string> linesToAdd = new List<string>();
 
             sb.AppendLine("File: " + smellInfo.FirstDiff.DiffFile.FileName);
 
             startLine = smellInfo.StartLineNumber;
             lineNumber = smellInfo.StartLineNumber - 1;
+
+            whitespaceIdx = int.MaxValue;
+            for (int i = 0; i < smellInfo.LineCount; i++)
+            {
+                int idx = 0;
+                if (smellInfo.DiffLines[i].Line.Length > 0)
+                {
+                    while (smellInfo.DiffLines[i].Line[idx] == ' ')
+                    {
+                        idx += 1;
+                        if (idx == smellInfo.DiffLines[i].Line.Length) break;
+                    }
+                }
+
+                if (idx < whitespaceIdx)
+                {
+                    whitespaceIdx = idx;
+                }
+            }
+
             for (int i = 0; i < smellInfo.LineCount; i++)
             {
                 DiffInfoLine diffInfoLine = smellInfo.DiffLines[i];
 
-                linesToAdd.Add("+" + diffInfoLine.Line);
+                linesToAdd.Add(diffInfoLine.Line.Substring(whitespaceIdx));
 
                 if (startLine < 0)
                 {

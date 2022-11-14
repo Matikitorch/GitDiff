@@ -3,13 +3,12 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 
-// Change this to match your program's normal namespace
 namespace GitDiff
 {
-    public class IniFile   // revision 11
+    public class IniFile
     {
-        string Path;
-        string EXE = Assembly.GetExecutingAssembly().GetName().Name ?? throw new ArgumentNullException();
+        private string Path;
+        private string EXE = Assembly.GetExecutingAssembly().GetName().Name ?? throw new ArgumentNullException();
 
         public IniFile(string IniPath = null)
         {
@@ -20,7 +19,7 @@ namespace GitDiff
         {
             var RetVal = new StringBuilder();
             GetString(Section ?? EXE, Key, Default, RetVal, Path);
-            return RetVal.ToString();
+            return RetVal.ToString().Trim();
         }
 
         public void Write(string Key, string Value, string Section = null)

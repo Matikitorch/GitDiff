@@ -29,6 +29,8 @@ namespace GitDiff
 
         static void Main(string[] args)
         {
+            string str;
+
             // Read in the INI file
             IniFile myIniFile = new IniFile();
             Directory = myIniFile.Read("Directory");
@@ -48,8 +50,13 @@ namespace GitDiff
                 CodeSmellResults codeSmellResults = codeSmellFactory.Analyze(diffInfo);
 
                 // Print the results of the smell analysis
-                string toPrint = codeSmellResults.GetString();
-                if (!string.IsNullOrEmpty(toPrint)) Console.WriteLine(toPrint);
+                if (!string.IsNullOrEmpty(str = codeSmellResults.Print()))
+                {
+                    Console.WriteLine(str);
+                }
+
+                // Save the results of the smell analysis to a CSV
+                codeSmellResults.SaveToCSV();
             }
 
             Console.WriteLine();

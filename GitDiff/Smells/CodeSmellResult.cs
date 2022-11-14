@@ -7,11 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using GitDiff;
 using Markdig.Helpers;
+using System.Reflection;
 
 namespace GitDiff.Smells
 {
     public class CodeSmellResults
     {
+        private string EXE = Assembly.GetExecutingAssembly().GetName().Name ?? throw new ArgumentNullException();
+        private static bool IsFirst = true;
+
         public List<CodeSmellResult> CodeSmellResultList
         { get; } = new List<CodeSmellResult>();
 
@@ -22,16 +26,70 @@ namespace GitDiff.Smells
             CodeSmellResultList.Add(codeSmellResult);
         }
 
-        public string GetString()
+        public string Print()
         {
             StringBuilder sb = new StringBuilder();
 
-            foreach(CodeSmellResult codeSmellResult in CodeSmellResultList)
+            foreach (CodeSmellResult codeSmellResult in CodeSmellResultList)
             {
-                sb.AppendLine(codeSmellResult.PrintResult());
+                sb.AppendLine(codeSmellResult.ToString());
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Column 1: Commit ID
+        /// Column 2: Code smell name
+        /// Column 3: File name
+        /// Column 5: Line number
+        /// Column 6: Line contents
+        /// </summary>
+        public void SaveToCSV()
+        {
+            if (CodeSmellResultList.Count == 0) return;
+            string fileFullName = Environment.CurrentDirectory + "\\" + EXE + ".csv";
+            StringBuilder sb = new StringBuilder();
+
+            if (IsFirst)
+            {
+                IsFirst = false;
+
+                try
+                {
+                    File.Delete(fileFullName);
+                }
+                catch { }
+            }
+
+            if (!File.Exists(fileFullName))
+            {
+                File.Create(fileFullName).Close();
+                sb.Append("Commit ID,Code Smell Name, File Name, Line Number, Line Contents");
+            }
+
+            foreach (CodeSmellResult codeSmellResult in CodeSmellResultList)
+            {
+                if (!codeSmellResult.HasSmells) continue;
+
+                foreach (SmellInfo smellInfo in codeSmellResult.CodeSmellList)
+                {
+                    if (smellInfo.LineCount == 0) continue;
+
+                    foreach (DiffInfoLine diffInfoLine in smellInfo.DiffLines)
+                    {
+                        sb.AppendLine();
+
+                        sb.Append(codeSmellResult.Commit.CommitID + ",");
+                        sb.Append(codeSmellResult.CodeSmell.Title + ",");
+                        sb.Append(diffInfoLine.DiffFile.FileName + ",");
+                        sb.Append(diffInfoLine.LineNumber.ToString() + ",");
+                        sb.Append(diffInfoLine.Line.Trim());
+                    }
+                }
+            }
+
+            File.AppendAllText(fileFullName, sb.ToString());
         }
     }
 
@@ -70,7 +128,7 @@ namespace GitDiff.Smells
         /// Returns a user-friendly printable string of all the smelly code
         /// </summary>
         /// <returns></returns>
-        public string PrintResult()
+        public override string ToString()
         {
             const int headerLen = 100;
             const char headerChar = '=';
@@ -96,7 +154,7 @@ namespace GitDiff.Smells
 
             foreach (SmellInfo smellInfo in CodeSmellList)
             {
-                CodeSmell.Print(sb, smellInfo);
+                CodeSmell.ToString(sb, smellInfo);
             }
 
             return sb.ToString();

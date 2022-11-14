@@ -48,7 +48,7 @@ namespace GitDiff.Syntax
                         continue;
                     }
 
-                    if ((supportedExtensions.Length == 0) || (fileName.Contains('.') && supportedExtensions.Any(fileName.Substring(fileName.LastIndexOf('.')).Contains)))
+                    if ((supportedExtensions.Length == 0) || (supportedExtensions.Any(ext => fileName.EndsWith(ext))))
                     {
                         // Parse one or more 'chunk's
                         while (commitLine.StartsWith(DiffSyntaxChunk.Prefix))

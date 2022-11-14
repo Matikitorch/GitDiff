@@ -32,7 +32,7 @@ namespace GitDiff.Smells
 
         public abstract CodeSmellResult Analyze(DiffInfoCommit diffInfoCommit);
 
-        public abstract void Print(StringBuilder sb, SmellInfo smellInfo);
+        public abstract void ToString(StringBuilder sb, SmellInfo smellInfo);
     }
 
     public enum CodeSmellSeverity
