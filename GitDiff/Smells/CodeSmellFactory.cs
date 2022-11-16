@@ -1,7 +1,9 @@
 ﻿using GitDiff.Syntax;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,6 +14,8 @@ namespace GitDiff.Smells
     /// </summary>
     public class CodeSmellFactory
     {
+        public delegate void CodeSmellResultHook(CodeSmellResults codeSmellResults);
+
         public CodeSmellFactory()
         {
             CodeSmellList.Add(new CodeSmellSwitchCase());
@@ -25,30 +29,44 @@ namespace GitDiff.Smells
         public int Count
         { get { return CodeSmellList.Count; } }
 
-        public void AddCodeSmell(CodeSmell codeSmell)
-        {
-            if (codeSmell == null) return;
-
-            CodeSmellList.Add(codeSmell);
-        }
+        public ConcurrentQueue<CodeSmellResults> CodeSmellResultsQueue
+        { get; } = new ConcurrentQueue<CodeSmellResults>();
 
         /// <summary>
         /// Analyzes an entire commit against all of the supported code smells
         /// </summary>
-        /// <param name="diffInfoCommit"></param>
+        /// <param name="diffInfoCommits"></param>
+        /// <param name="codeSmellResultHook"></param>
         /// <returns></returns>
-        /// <exception cref="InvalidOperationException"></exception>
-        public CodeSmellResults Analyze(DiffInfoCommit diffInfoCommit)
+        public Task Analyze(List<DiffInfoCommit> diffInfoCommits, params CodeSmellResultHook[] codeSmellResultHook)
         {
             if (Count == 0) throw new InvalidOperationException();
-            CodeSmellResults codeSmellResults = new CodeSmellResults();
 
-            foreach (CodeSmell codeSmell in CodeSmellList)
+            ParallelLoopResult parallelLoopResult = Parallel.ForEach(diffInfoCommits, diffInfo =>
             {
-                codeSmellResults.Add(codeSmell.Analyze(diffInfoCommit));
-            }
+                CodeSmellResults codeSmellResults = new CodeSmellResults();
 
-            return codeSmellResults;
+                foreach (CodeSmell codeSmell in CodeSmellList)
+                {
+                    codeSmellResults.Add(codeSmell.Analyze(diffInfo));
+                }
+
+                if (codeSmellResults.Count > 0) CodeSmellResultsQueue.Enqueue(codeSmellResults);
+            });
+
+            return Task.Run(() =>
+            {
+                while (!parallelLoopResult.IsCompleted || !CodeSmellResultsQueue.IsEmpty)
+                {
+                    if (CodeSmellResultsQueue.TryDequeue(out CodeSmellResults codeSmellResults))
+                    {
+                        foreach (CodeSmellResultHook hook in codeSmellResultHook)
+                        {
+                            hook(codeSmellResults);
+                        }
+                    }
+                }
+            });
         }
     }
 }

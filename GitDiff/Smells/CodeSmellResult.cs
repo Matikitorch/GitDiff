@@ -19,6 +19,9 @@ namespace GitDiff.Smells
         public List<CodeSmellResult> CodeSmellResultList
         { get; } = new List<CodeSmellResult>();
 
+        public int Count
+        { get { return CodeSmellResultList.Count; } }
+
         public void Add(CodeSmellResult codeSmellResult)
         {
             if ((codeSmellResult == null) || !codeSmellResult.HasSmells) return;

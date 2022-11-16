@@ -44,24 +44,30 @@ namespace GitDiff
             // Create a new code smell factory
             CodeSmellFactory codeSmellFactory = new CodeSmellFactory();
 
-            // Analyze the results on a commit by commit basis
-            foreach (DiffInfoCommit diffInfo in diffInfos)
-            {
-                CodeSmellResults codeSmellResults = codeSmellFactory.Analyze(diffInfo);
-
-                // Print the results of the smell analysis
-                if (!string.IsNullOrEmpty(str = codeSmellResults.Print()))
-                {
-                    Console.WriteLine(str);
-                }
-
-                // Save the results of the smell analysis to a CSV
-                codeSmellResults.SaveToCSV();
-            }
+            // Analyze the results
+            codeSmellFactory.Analyze(diffInfos, Consumer.ConsolePrint, Consumer.CSVPrint).Wait();
 
             Console.WriteLine();
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
+        }
+    }
+
+    public static class Consumer
+    {
+        public static void ConsolePrint(CodeSmellResults codeSmellResults)
+        {
+            string toPrint = codeSmellResults.Print();
+
+            if(!string.IsNullOrWhiteSpace(toPrint))
+            {
+                Console.WriteLine(toPrint);
+            }
+        }
+
+        public static void CSVPrint(CodeSmellResults codeSmellResults)
+        {
+            codeSmellResults.SaveToCSV();
         }
     }
 }
