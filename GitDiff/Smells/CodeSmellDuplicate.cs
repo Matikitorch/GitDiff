@@ -11,7 +11,7 @@ namespace GitDiff.Smells
 {
     public class CodeSmellDuplicate : CodeSmell
     {
-        private static int MinNumOfCharacters = 25;
+        private static readonly int MinNumOfCharacters = 25;
 
         public CodeSmellDuplicate()
             : base(CodeSmellSeverity.Warning)
