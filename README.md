@@ -6,7 +6,7 @@ Analyze open source GitHub projects for code smells, by iterating through their 
 ## Instructions
 1. Download GitDiff
 2. Navigate to the executable directory ..\GitDiff\bin\Debug\net6.0
-3. Open GitDiff.ini with any text editor
+3. Open GitDiff.ini with any text editor and modify the fields as necessary
    - ProjectDirectory
      - Directory of the project to analyze for code smells
    - ResultsDirectory
