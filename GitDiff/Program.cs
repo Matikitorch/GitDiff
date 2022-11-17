@@ -37,8 +37,8 @@ namespace GitDiff
         {
             // Read in the INI file
             IniFile myIniFile = new IniFile();
-            ProjectDirectory = myIniFile.Read("ProjectDirectory");
-            ResultsDirectory = myIniFile.Read("ResultsDirectory");
+            ProjectDirectory = myIniFile.Read("ProjectDirectory").TrimEnd('\\');
+            ResultsDirectory = myIniFile.Read("ResultsDirectory").TrimEnd('\\'); ;
             CommitLayers = uint.Parse(myIniFile.Read("CommitLayers"));
             FileExtensionFilter = myIniFile.Read("FileExtensionFilter").Split(',');
 
