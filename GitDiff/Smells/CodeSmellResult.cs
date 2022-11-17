@@ -19,8 +19,8 @@ namespace GitDiff.Smells
         public List<CodeSmellResult> CodeSmellResultList
         { get; } = new List<CodeSmellResult>();
 
-        public int Count
-        { get { return CodeSmellResultList.Count; } }
+        public bool HasSmells
+        { get { return CodeSmellResultList.Count > 0; } }
 
         public void Add(CodeSmellResult codeSmellResult)
         {
@@ -48,10 +48,10 @@ namespace GitDiff.Smells
         /// Column 5: Line number
         /// Column 6: Line contents
         /// </summary>
-        public void SaveToCSV()
+        public void SaveToCSV(string directory)
         {
             if (CodeSmellResultList.Count == 0) return;
-            string fileFullName = Environment.CurrentDirectory + "\\" + EXE + ".csv";
+            string fileFullName = directory + "\\" + EXE + ".csv";
             StringBuilder sb = new StringBuilder();
 
             if (IsFirst)
@@ -177,14 +177,14 @@ namespace GitDiff.Smells
     {
         public SmellInfo(params DiffInfoLine[] diffLine)
         {
-            if ((diffLine == null) || (diffLine.Length == 0)) throw new ArgumentException();
+            if ((diffLine == null) || (diffLine.Length == 0) || diffLine.Contains(null)) throw new ArgumentException();
 
             DiffLines.AddRange(diffLine);
         }
 
         public SmellInfo(List<DiffInfoLine> diffLines)
         {
-            if ((diffLines == null) || (diffLines.Count == 0)) throw new ArgumentException();
+            if ((diffLines == null) || (diffLines.Count == 0) || diffLines.Contains(null)) throw new ArgumentException();
 
             DiffLines.AddRange(diffLines);
         }

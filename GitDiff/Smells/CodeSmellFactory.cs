@@ -29,20 +29,17 @@ namespace GitDiff.Smells
         public int Count
         { get { return CodeSmellList.Count; } }
 
-        public ConcurrentQueue<CodeSmellResults> CodeSmellResultsQueue
-        { get; } = new ConcurrentQueue<CodeSmellResults>();
-
         /// <summary>
         /// Analyzes an entire commit against all of the supported code smells
         /// </summary>
         /// <param name="diffInfoCommits"></param>
-        /// <param name="codeSmellResultHook"></param>
+        /// <param name="codeSmellResultsQueue"></param>
         /// <returns></returns>
-        public Task Analyze(List<DiffInfoCommit> diffInfoCommits, params CodeSmellResultHook[] codeSmellResultHook)
+        public void Analyze(List<DiffInfoCommit> diffInfoCommits, ConcurrentQueue<CodeSmellResults> codeSmellResultsQueue)
         {
             if (Count == 0) throw new InvalidOperationException();
 
-            ParallelLoopResult parallelLoopResult = Parallel.ForEach(diffInfoCommits, diffInfo =>
+            foreach(DiffInfoCommit diffInfo in diffInfoCommits)
             {
                 CodeSmellResults codeSmellResults = new CodeSmellResults();
 
@@ -51,22 +48,11 @@ namespace GitDiff.Smells
                     codeSmellResults.Add(codeSmell.Analyze(diffInfo));
                 }
 
-                if (codeSmellResults.Count > 0) CodeSmellResultsQueue.Enqueue(codeSmellResults);
-            });
-
-            return Task.Run(() =>
-            {
-                while (!parallelLoopResult.IsCompleted || !CodeSmellResultsQueue.IsEmpty)
+                if (codeSmellResults.HasSmells)
                 {
-                    if (CodeSmellResultsQueue.TryDequeue(out CodeSmellResults codeSmellResults))
-                    {
-                        foreach (CodeSmellResultHook hook in codeSmellResultHook)
-                        {
-                            hook(codeSmellResults);
-                        }
-                    }
+                    codeSmellResultsQueue.Enqueue(codeSmellResults);
                 }
-            });
+            }
         }
     }
 }
