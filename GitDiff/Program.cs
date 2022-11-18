@@ -43,13 +43,18 @@ namespace GitDiff
             FileExtensionFilter = myIniFile.Read("FileExtensionFilter").Split(',');
 
             // Print metadata
+            Console.WriteLine("GitDiff");
             Console.WriteLine("Project directory: " + ProjectDirectory);
             Console.WriteLine("Results directory: " + ResultsDirectory);
             Console.WriteLine("Number of commits: " + CommitLayers.ToString());
             Console.WriteLine("File extension filter(s): " + String.Join(',', FileExtensionFilter));
+            StartDots();
 
             // Create a consumer to pick up the results of the code smell analysis
-            Consumer myConsumer = new Consumer(ResultsDirectory);
+            Consumer myConsumer = new Consumer(ResultsDirectory)
+            {
+                OnStart = CancelDots
+            };
 
             // Get a list of commits
             GitCmd git = new GitCmd();
@@ -61,9 +66,45 @@ namespace GitDiff
             // Analyze the results
             codeSmellFactory.Analyze(diffInfos, myConsumer.ResultsQueue);
 
-            while (!myConsumer.IsEmpty) Thread.Sleep(1);
+            while (!myConsumer.ResultsQueueIsEmpty) Thread.Sleep(1);
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
+        }
+
+        private static void ClearConsoleLine()
+        {
+            Console.SetCursorPosition(0, Console.CursorTop);
+            Console.Write(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0, Console.CursorTop);
+        }
+
+        private static void Dots()
+        {
+            Console.WriteLine();
+            while (!TokenSource.IsCancellationRequested)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    ClearConsoleLine();
+                    Console.Write("Analyzing" + new string('.', i));
+                    Console.SetCursorPosition(0, Console.CursorTop); // Move the cursor back just for better visualization
+                    if (TokenSource.Token.WaitHandle.WaitOne(TimeSpan.FromMilliseconds(250))) break;
+                }
+            }
+            Console.WriteLine(Environment.NewLine);
+        }
+        private static CancellationTokenSource TokenSource = new CancellationTokenSource();
+        private static Task DotsTask;
+
+        private static void StartDots()
+        {
+            DotsTask = Task.Run(() => Dots());
+        }
+
+        private static void CancelDots()
+        {
+            TokenSource.Cancel();
+            while (!DotsTask.IsCompleted) Thread.Sleep(1);
         }
     }
 
@@ -74,7 +115,6 @@ namespace GitDiff
             ResultDirectory = resultDirectory;
 
             Task.Factory.StartNew(() => ThreadMain(), TaskCreationOptions.LongRunning);
-            Task.Factory.StartNew(() => Dots());
         }
 
         public string ResultDirectory
@@ -83,54 +123,34 @@ namespace GitDiff
         public ConcurrentQueue<CodeSmellResults> ResultsQueue
         { get; } = new ConcurrentQueue<CodeSmellResults>();
 
-        public bool IsEmpty
+        public bool ResultsQueueIsEmpty
         { get { return ResultsQueue.IsEmpty; } }
 
-        private void ClearConsoleLine()
-        {
-            Console.SetCursorPosition(0, Console.CursorTop);
-            Console.Write(new string(' ', Console.WindowWidth));
-            Console.SetCursorPosition(0, Console.CursorTop);
-        }
+        public delegate void ConsumerCallback();
 
-        private void Dots()
-        {
-            Console.WriteLine();
-            while (!tokenSource.IsCancellationRequested)
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    ClearConsoleLine();
-                    Console.Write("Analyzing" + new string('.', i));
-                    Console.SetCursorPosition(0, Console.CursorTop); // Move the cursor back just for better visualization
-                    if (tokenSource.Token.WaitHandle.WaitOne(TimeSpan.FromMilliseconds(250))) break;
-                }
-            }
-            Console.WriteLine(Environment.NewLine);
-        }
-        private CancellationTokenSource tokenSource = new CancellationTokenSource();
+        public ConsumerCallback OnStart
+        { get; set; } = null;
+
+        public ConsumerCallback OnEnd
+        { get; set; } = null;
 
         private void ThreadMain()
         {
-            bool cancelDots = true;
-
+            while (ResultsQueueIsEmpty) Thread.Sleep(TimeSpan.FromMilliseconds(50));
+            if (OnStart is not null) OnStart();
+            
             while (true)
             {
                 while (ResultsQueue.TryDequeue(out CodeSmellResults codeSmellResults))
                 {
-                    if (cancelDots)
-                    {
-                        tokenSource.Cancel();
-                        Thread.Sleep(TimeSpan.FromMilliseconds(100));
-                        cancelDots = false;
-                    }
-
                     ConsolePrint(codeSmellResults);
                     CSVPrint(codeSmellResults);
                 }
 
                 Thread.Sleep(TimeSpan.FromMilliseconds(10));
             }
+
+            if (OnEnd is not null) OnEnd();
         }
 
         public void ConsolePrint(CodeSmellResults codeSmellResults)
