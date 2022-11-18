@@ -48,12 +48,12 @@ namespace GitDiff
             Console.WriteLine("Results directory: " + ResultsDirectory);
             Console.WriteLine("Number of commits: " + CommitLayers.ToString());
             Console.WriteLine("File extension filter(s): " + String.Join(',', FileExtensionFilter));
-            StartDots();
+            StartAnalyzingMessage();
 
             // Create a consumer to pick up the results of the code smell analysis
             Consumer myConsumer = new Consumer(ResultsDirectory)
             {
-                OnStart = CancelDots
+                OnStart = StopAnalyzingMessage
             };
 
             // Get a list of commits
@@ -66,6 +66,7 @@ namespace GitDiff
             // Analyze the results
             codeSmellFactory.Analyze(diffInfos, myConsumer.ResultsQueue);
 
+            // Terminate process
             while (!myConsumer.ResultsQueueIsEmpty) Thread.Sleep(1);
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
@@ -78,7 +79,7 @@ namespace GitDiff
             Console.SetCursorPosition(0, Console.CursorTop);
         }
 
-        private static void Dots()
+        private static void AnalyzingMessage()
         {
             Console.WriteLine();
             while (!TokenSource.IsCancellationRequested)
@@ -96,12 +97,12 @@ namespace GitDiff
         private static CancellationTokenSource TokenSource = new CancellationTokenSource();
         private static Task DotsTask;
 
-        private static void StartDots()
+        private static void StartAnalyzingMessage()
         {
-            DotsTask = Task.Run(() => Dots());
+            DotsTask = Task.Run(() => AnalyzingMessage());
         }
 
-        private static void CancelDots()
+        private static void StopAnalyzingMessage()
         {
             TokenSource.Cancel();
             while (!DotsTask.IsCompleted) Thread.Sleep(1);
