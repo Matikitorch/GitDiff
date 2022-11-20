@@ -14,7 +14,7 @@ namespace GitDiff
         {
             ResultDirectory = resultDirectory;
 
-            Task.Factory.StartNew(() => ThreadMain(), TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(() => ConsumerThread(), TaskCreationOptions.LongRunning);
         }
 
         public string ResultDirectory
@@ -26,6 +26,9 @@ namespace GitDiff
         public bool ResultsQueueIsEmpty
         { get { return ResultsQueue.IsEmpty; } }
 
+        public CancellationTokenSource CT
+        { get; } = new CancellationTokenSource();
+
         public delegate void ConsumerCallback();
 
         public ConsumerCallback OnStart
@@ -34,7 +37,7 @@ namespace GitDiff
         public ConsumerCallback OnEnd
         { get; set; } = null;
 
-        private void ThreadMain()
+        private void ConsumerThread()
         {
             while (ResultsQueueIsEmpty) Thread.Sleep(TimeSpan.FromMilliseconds(50));
             if (OnStart is not null) OnStart();
@@ -47,7 +50,7 @@ namespace GitDiff
                     CSVPrint(codeSmellResults);
                 }
 
-                Thread.Sleep(TimeSpan.FromMilliseconds(10));
+                if (CT.Token.WaitHandle.WaitOne(TimeSpan.FromMilliseconds(10))) break;
             }
 
             if (OnEnd is not null) OnEnd();
@@ -66,6 +69,11 @@ namespace GitDiff
         public void CSVPrint(CodeSmellResults codeSmellResults)
         {
             codeSmellResults.SaveToCSV(ResultDirectory);
+        }
+
+        public void Stop()
+        {
+            CT.Cancel();
         }
     }
 }
