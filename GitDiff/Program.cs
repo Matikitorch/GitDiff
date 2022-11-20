@@ -88,7 +88,6 @@ namespace GitDiff
                 {
                     ClearConsoleLine();
                     Console.Write("Analyzing" + new string('.', i));
-                    Console.SetCursorPosition(0, Console.CursorTop); // Move the cursor back just for better visualization
                     if (TokenSource.Token.WaitHandle.WaitOne(TimeSpan.FromMilliseconds(250))) break;
                 }
             }
